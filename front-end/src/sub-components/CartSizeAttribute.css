@@ -1,0 +1,62 @@
+.size-attribute-cover {
+  display: flex;
+  flex-flow: column wrap;
+  gap: 5px;
+  height: 50px;
+  width: 120px;
+  margin: 0;
+}
+.size-attribute-header {
+  display: flex;
+  height: 20px;
+  width: 100%;
+  font-family: "Roboto Condensed", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 16px;
+  text-align: left;
+  margin: 0;
+}
+.size-attribute-variations {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 8px;
+  height: 24px;
+  width: 120px;
+  margin: 0;
+}
+
+.size-attribute-selection {
+  color: #1d1f22;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 24px;
+  width: 24px;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 16px;
+  text-align: left;
+  border: 1px solid #1d1f22;
+  margin: 0;
+  padding: 3px;
+}
+
+.size-attribute-current-selection {
+  background-color: #1d1f22;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 24px;
+  width: 24px;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22.4px;
+  text-align: center;
+  border: 1px solid #1d1f22;
+  padding: 3px;
+  margin: 0;
+}

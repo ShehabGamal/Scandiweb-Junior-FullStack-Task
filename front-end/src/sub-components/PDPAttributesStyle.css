@@ -1,0 +1,37 @@
+
+.attribute-header{
+    display:flex;
+    font-family: "Roboto Condensed", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    margin:0 0 10px 0;
+}
+
+.attributes-list{
+    display:flex;
+    margin:0;
+    justify-content: flex-start;
+    flex-flow:row wrap;
+    gap:15px;
+    width:100%;
+}
+ 
+.preference{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 54px;
+    width:63px;
+    border: 1px solid #1D1F22;
+    margin:0;
+}
+.preference.current{
+    color:white;
+    background:#1D1F22;
+  }
+ .preference.current-color{
+    border:2px solid white;
+    outline:2px solid #5ECE7B ;
+}

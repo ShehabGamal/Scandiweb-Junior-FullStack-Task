@@ -1,0 +1,90 @@
+.PDP-container{
+    display: flex;
+    flex-flow: row wrap;
+    width:82%;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin:0 auto;
+    gap:30px;
+}
+.PDP-container.disabled {
+    filter: grayscale(100%); 
+  }
+.attributes-section{
+    display:flex;
+    justify-content: flex-start;
+    flex-flow: row wrap;
+    gap:15px;
+    margin:56px 0 0 0;  
+}
+.attributes-container{
+    display:flex;
+    flex-flow: column wrap;
+    margin:0; 
+}
+.shop-item-info{
+    height: 541px;
+    width:300px;
+    margin-top: 20px;
+}
+
+.shop-item-name{
+    color:#1D1F22;
+    width:100%;
+    font-family: 'Raleway', sans-serif;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 27px;
+    text-align: left;
+
+}
+
+.shop-item-amount{
+    display:flex;
+    flex-flow: column wrap;
+    margin:22px 0 0 0;
+}
+
+.shop-item-price-header{
+    display:flex;
+    font-family: "Roboto Condensed", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    margin:0 0 10px 0;
+}
+
+.shop-item-charge{
+    font-family: 'Raleway',sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align:left;
+    margin:0;
+}
+
+.add-to-cart{
+    width:292px;
+    height:52px;
+    padding: 16px 32px 16px 32px;
+    background: #5ECE7B;
+    color:white;
+    font-family: 'Raleway',sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 19.2px;
+    text-align: center;
+    border: 0;
+    margin-top:20px;
+}
+.shop-item-description{
+    font-family: "Roboto", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 25.59px;
+    text-align: left;
+}
+
+
+  
