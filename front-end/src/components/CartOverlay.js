@@ -30,7 +30,7 @@ class CartOverlay extends Component {
       products.push(itemDescription);
     });
     if (products.length > 0) {
-      fetch("http://localhost:8000/graphql", {
+      fetch("http://shehab-gamal334.serv00.net:38837/graphql", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
