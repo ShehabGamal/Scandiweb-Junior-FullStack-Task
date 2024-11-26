@@ -15,7 +15,8 @@ class App extends Component {
     super(props);
     this.state = {
       categories: [],
-      activeCategory: "all",
+      activeCategory:
+        JSON.parse(localStorage.getItem("activeCategory")) || "all",
       cartState: false,
       currentItem: null,
     };
@@ -41,6 +42,7 @@ class App extends Component {
   }
 
   handleCategorySelect = (category) => {
+    localStorage.setItem("activeCategory", JSON.stringify(category));
     this.setState({ activeCategory: category });
   };
 
