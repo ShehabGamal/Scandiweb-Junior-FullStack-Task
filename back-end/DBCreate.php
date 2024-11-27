@@ -80,9 +80,7 @@ try {
     foreach ($queries as $query) {
         $pdo->exec($query);
     }
-
-    echo "Database creation is done :P";
-
+    
 } catch (PDOException $e) {
     
     echo "Error: " . $e->getMessage();

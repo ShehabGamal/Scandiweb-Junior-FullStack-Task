@@ -11,12 +11,13 @@ $dotenv->load();
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->post('/graphql', [App\Controller\GraphQL::class, 'handle']);
 });
-
+require_once '../DBCreate.php';
+require_once '../DataInsertion.php';
 $routeInfo = $dispatcher->dispatch(
     $_SERVER['REQUEST_METHOD'],
     $_SERVER['REQUEST_URI']
 );
-
+   
 switch ($routeInfo[0]) {
     case FastRoute\Dispatcher::NOT_FOUND:
         // ... 404 Not Found
@@ -31,3 +32,8 @@ switch ($routeInfo[0]) {
         echo $handler($vars);
         break;
 }
+
+
+  
+
+
