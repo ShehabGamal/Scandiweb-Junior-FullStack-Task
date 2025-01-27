@@ -1,154 +1,38 @@
 <?php
 
-
-
 namespace App\Controller;
 
-
 use GraphQL\GraphQL as GraphQLBase;
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
-use GraphQL\Type\SchemaConfig;
+use GraphQL\Type\Definition\{Type, ObjectType};
+use GraphQL\Type\{Schema, SchemaConfig};
+use App\Controller\Types\{CategoryType, AttributeType, ProductType, OrderType};
+use App\Controller\Queries\{CategoryQuery, AllProductsQuery, ProductByIDQuery};
 use RuntimeException;
 use Throwable;
-use App\Database\Database;
 
 class GraphQL
 {
-
-    private static $db;
-
-
-    public static function init()
-    {
-        self::$db = (new Database())->getConnection();
-    }
-
     public static function handle()
     {
-        self::init();
-
         try {
+            $productAttributeType = (new AttributeType())->init();
 
-            $productAttributeType = new ObjectType([
-                'name' => 'ProductAttribute',
-                'fields' => [
-                    'id' => Type::nonNull(Type::id()),
-                    'name' => Type::nonNull(Type::string()),
-                    'value' => Type::string(),
-                ]
-            ]);
+            $CategoryType = (new CategoryType())->init();
 
-            $CategoryType = new ObjectType([
-                'name' => 'ProductCategory',
-                'fields' => [
-                    'name' => Type::nonNull(Type::string())
-                ]
-            ]);
+            $orderType = (new OrderType())->init();
 
-            $productType = new ObjectType([
-                'name' => 'Product',
-                'fields' => [
-                    'id' => Type::nonNull(Type::id()),
-                    'name' => Type::nonNull(Type::string()),
-                    'description' => Type::string(),
-                    'gallery' => Type::string(),
-                    'amount' => Type::float(),
-                    'currency_label' => Type::string(),
-                    'currency_symbol' => Type::string(),
-                    'in_stock' => Type::boolean(),
-                    'brand' => Type::string(),
-                    'attributes' => [
-                        'type' => Type::listOf($productAttributeType),
-                        'resolve' => function ($product) {
-                            $stmt = self::$db->prepare("
-                               SELECT a.id, a.name, av.value 
-                               FROM product_attributes pa
-                               JOIN attribute_values av ON pa.attribute_value_id = av.id
-                               JOIN attributes a ON av.attribute_id = a.id
-                               WHERE pa.product_id = :product_id
-                            ");
-                            $stmt->execute([':product_id' => $product['id']]);
-                            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-                        }
-                    ],
-                    'category' => [
-                        'type' => Type::nonNull($CategoryType),
-                        'resolve' => function ($product) {
-                            $stmt = self::$db->prepare("SELECT name FROM categories WHERE id = :id");
-                            $stmt->execute([':id' => $product['category_id']]);
-                            return $stmt->fetch(\PDO::FETCH_ASSOC);
-                        }
-                    ],
-                ]
-
-            ]);
+            $productType = (new ProductType($productAttributeType, $CategoryType))->init();
 
             $queryType = new ObjectType([
                 'name' => 'Query',
                 'fields' => [
-                    'getCategories' => [
-                        'type' => Type::listOf(new ObjectType([
-                            'name' => 'Category',
-                            'fields' => [
-                                'id' => Type::nonNull(Type::id()),
-                                'name' => Type::nonNull(Type::string()),
-                            ],
-                        ])),
-                        'resolve' => function () {
-                            $stmt = self::$db->query("SELECT * FROM categories");
-                            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-                        }
-                    ],
-                    'getProducts' => [
-                        'type' => Type::listOf($productType),
-                        'resolve' => function () {
-                            $stmt = self::$db->query("
-                                SELECT p.id, p.name, p.description, p.in_stock, p.gallery, p.brand, 
-                                       pr.amount, pr.currency_label, pr.currency_symbol, 
-                                       p.category_id
-                                FROM products p
-                                LEFT JOIN prices pr ON p.id = pr.product_id
-                            ");
-                            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-                        }
-                    ],
-                    'getProductById' => [
-                        'type' => $productType,
-                        'args' => [
-                            'id' => ['type' => Type::nonNull(Type::id())]
-                        ],
-                        'resolve' => function ($root, $args) {
-                            $stmt = self::$db->prepare("
-                                SELECT p.id, p.name, p.description, p.in_stock, 
-                                       p.gallery, p.brand, 
-                                       COALESCE(pr.amount, 0) as amount, 
-                                       COALESCE(pr.currency_label, 'N/A') as currency_label, 
-                                       COALESCE(pr.currency_symbol, '-') as currency_symbol,
-                                       p.category_id
-                                FROM products p
-                                LEFT JOIN prices pr ON p.id = pr.product_id
-                                WHERE p.id = :id
-                            ");
-                            $stmt->execute([':id' => $args['id']]);
-                            return $stmt->fetch(\PDO::FETCH_ASSOC);
-                        }
-                    ],
+                    'getCategories' => (new CategoryQuery($CategoryType))->init()
+                    ,
+                    'getProducts' => (new AllProductsQuery($productType))->init()
+                    ,
+                    'getProductById' =>  (new ProductByIDQuery($productType))->init(),
                 ],
             ]);
-            $orderType = new ObjectType([
-                'name' => 'Order',
-                'fields' => [
-                    'id' => ['type' => Type::nonNull(Type::int())],
-                    'items' => Type::nonNull(Type::string()),
-
-                    'total_price' => ['type' => Type::nonNull(Type::float())],
-
-                ],
-            ]);
-
-
 
             $mutationType = new ObjectType([
                 'name' => 'Mutation',
@@ -157,7 +41,6 @@ class GraphQL
                         'type' => $orderType,
                         'args' => [
                             'items' => Type::nonNull(Type::string()),
-
                             'total_price' => ['type' => Type::nonNull(Type::float())],
                         ],
                         'resolve' => function ($root, $args) {
@@ -168,8 +51,6 @@ class GraphQL
                                 $pass = $_ENV['DB_PASS'];
                                 $db = new \PDO("mysql:host=$host;dbname=$dbname", "$user", "$pass");
                                 $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-
                                 $stmt = $db->prepare('INSERT INTO orders (items, total_price) VALUES (?, ?)');
                                 $stmt->execute([$args['items'], $args['total_price']]);
                                 $orderId = $db->lastInsertId();
@@ -193,11 +74,10 @@ class GraphQL
                 ],
             ]);
 
-            $schema = new Schema(
-                (new SchemaConfig())
-                    ->setQuery($queryType)
-                    ->setMutation($mutationType)
-            );
+            $schemaConfig = new SchemaConfig();
+            $schemaConfig->setQuery($queryType);
+            $schemaConfig->setMutation($mutationType);
+            $schema = new Schema($schemaConfig);
 
             $rawInput = file_get_contents('php://input');
             if ($rawInput === false || empty($rawInput)) {
@@ -212,7 +92,6 @@ class GraphQL
             $query = $input['query'];
             $variableValues = $input['variables'] ?? null;
 
-
             $result = GraphQLBase::executeQuery($schema, $query, null, null, $variableValues);
             $output = $result->toArray();
         } catch (Throwable $e) {
@@ -222,7 +101,6 @@ class GraphQL
                 ],
             ];
         }
-
 
         header('Content-Type: application/json; charset=UTF-8');
         echo json_encode($output);

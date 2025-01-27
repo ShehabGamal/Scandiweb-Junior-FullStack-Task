@@ -1,18 +1,19 @@
 <?php
-use Dotenv\Dotenv;
+
 header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Headers: *");
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once '../DBCreate.php';
+require_once '../DataInsertion.php';
+
+use Dotenv\Dotenv;
 
 $dotenv = Dotenv::createImmutable(__DIR__ . "/..");
 $dotenv->load();
-
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->post('/graphql', [App\Controller\GraphQL::class, 'handle']);
 });
-require_once '../DBCreate.php';
-require_once '../DataInsertion.php';
 $routeInfo = $dispatcher->dispatch(
     $_SERVER['REQUEST_METHOD'],
     $_SERVER['REQUEST_URI']
@@ -32,8 +33,3 @@ switch ($routeInfo[0]) {
         echo $handler($vars);
         break;
 }
-
-
-  
-
-
